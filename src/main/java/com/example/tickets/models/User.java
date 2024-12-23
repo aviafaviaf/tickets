@@ -48,7 +48,6 @@ public class User implements UserDetails {
         orders.add(order);
     }
 
-
     public boolean isAdmin() {
         return roles.contains(Role.ROLE_ADMIN);
     }

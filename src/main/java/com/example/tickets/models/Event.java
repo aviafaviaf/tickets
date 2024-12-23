@@ -29,8 +29,5 @@ public class Event {
     private String description;
     @Column(name = "price")
     private int price;
-
-    public String getDateTime() {
-        return dateTime.getDayOfMonth() + "." + dateTime.getMonthValue() + "." + dateTime.getYear() + " " + dateTime.toLocalTime().toString();
-    }
 }
+

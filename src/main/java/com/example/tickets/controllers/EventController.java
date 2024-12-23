@@ -3,41 +3,43 @@ package com.example.tickets.controllers;
 import com.example.tickets.models.Event;
 import com.example.tickets.services.EventService;
 import com.example.tickets.services.UserService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
 
-@Controller
+@RestController
+@RequestMapping("/api/events")
+@RequiredArgsConstructor
 public class EventController {
     private static final Logger log = LoggerFactory.getLogger(EventController.class);
     private final EventService eventService;
     private final UserService userService;
 
-    public EventController(EventService eventService, UserService userService) {
-        this.eventService = eventService;
-        this.userService = userService;
+    @GetMapping
+    public ResponseEntity<Map<String, Object>> getEvents(
+            @RequestParam(name = "searchWord", required = false) String title, Principal principal) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("events", eventService.getEvents(title));
+        response.put("user", userService.getUserByPrincipal(principal));
+        response.put("searchWord", title);
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/")
-    public String events(@RequestParam(name = "searchWord", required = false)
-                               String title, Principal principal, Model model) {
-        model.addAttribute("events", eventService.getEvents(title));
-        model.addAttribute("user", eventService.getUserByPrincipal(principal));
-        model.addAttribute("searchWord", title);
-        return "events";
-    }
-
-    @GetMapping("/event/{id}")
-    public String productInfo(@PathVariable Long id, Model model, Principal principal) {
+    @GetMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> getEventInfo(@PathVariable Long id, Principal principal) {
         Event event = eventService.getEventByID(id);
-        model.addAttribute("event", event);
-        model.addAttribute("user", userService.getUserByPrincipal(principal));
-        return "event-info";
+        Map<String, Object> response = new HashMap<>();
+        response.put("event", event);
+        response.put("user", userService.getUserByPrincipal(principal));
+        return ResponseEntity.ok(response);
     }
 }
+
